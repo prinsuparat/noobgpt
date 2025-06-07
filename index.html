@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoobGPT</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="application-name" content="NoobGPT">
+    <meta name="apple-mobile-web-app-title" content="NoobGPT">
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1>NoobGPT</h1>
+        </header>
+        <div class="chat-container">
+            <div id="chat-window">
+                <div class="messages-box">
+                    <div class="messages-list layout">
+                         <div id="messages"></div>
+                         <div class="waiting" data-hide="true"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-box layout">
+            <div class="input-padding">
+                <form id="input-area" autocomplete="off">
+                    <input type="text" id="user-input" placeholder="给“NoobGPT”发送消息" maxlength="200">
+                    <button id="send-button">发送</button>
+                </form>
+                <footer>
+                    <span>Powered by <a href="https://lab.magiconch.com/" target="_blank">神奇海螺试验场</a></span>
+                    <i class="hr"></i>
+                    <span>
+                        <a href="https://weibo.com/1197780522/OA7iShBwO" target="_blank">@Julian</a>
+                    </span>
+                    <i class="hr"></i>
+                    <span>
+                        <a href="https://github.com/itorr/noobgpt" target="_blank">GitHub</a>
+                    </span>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script src="noob.js"></script>
+</body>
+</html>
