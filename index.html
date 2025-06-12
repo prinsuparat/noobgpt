@@ -4,47 +4,207 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NoobGPT</title>
-    <link rel="stylesheet" href="styles.css">
     <meta name="application-name" content="NoobGPT">
     <meta name="apple-mobile-web-app-title" content="NoobGPT">
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#7B61FF',
+                        dark: '#1E1E2E',
+                        light: '#F5F5F7',
+                        'light-gray': '#E5E7EB',
+                        'dark-gray': '#4B5563'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .chat-bubble-left {
+                @apply bg-white dark:bg-dark-gray/30 text-dark dark:text-light rounded-2xl rounded-tl-none p-4 shadow-md;
+            }
+            .chat-bubble-right {
+                @apply bg-primary text-white rounded-2xl rounded-tr-none p-4 shadow-md;
+            }
+            .typing-indicator {
+                @apply inline-flex space-x-1;
+            }
+            .typing-dot {
+                @apply h-2 w-2 rounded-full bg-primary/50 animate-pulse;
+            }
+        }
+    </style>
 </head>
-<body>
-    <div class="app">
-        <header>
-            <h1>NoobGPT</h1>
+<body class="bg-gray-50 dark:bg-dark font-inter min-h-screen flex flex-col">
+    <!-- 深色模式切换按钮 -->
+    <button id="theme-toggle" class="fixed top-4 right-4 z-50 bg-white dark:bg-dark-gray/50 p-2 rounded-full shadow-lg hover:scale-110 transition-all duration-300">
+        <i class="fa fa-moon-o dark:hidden text-dark"></i>
+        <i class="fa fa-sun-o hidden dark:inline text-yellow-300"></i>
+    </button>
+    
+    <div class="app flex-1 flex flex-col">
+        <header class="bg-white dark:bg-dark-gray/30 border-b border-light-gray dark:border-dark-gray/50 shadow-sm py-4 px-6 flex items-center justify-between">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold text-primary dark:text-primary/80 flex items-center">
+                    <i class="fa fa-robot mr-2"></i>
+                    NoobGPT
+                </h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="menu-button" class="md:hidden p-2 rounded-full hover:bg-light-gray/50 dark:hover:bg-dark-gray/50 transition-colors">
+                    <i class="fa fa-bars text-dark dark:text-light"></i>
+                </button>
+            </div>
         </header>
-        <div class="chat-container">
-            <div id="chat-window">
-                <div class="messages-box">
-                    <div class="messages-list layout">
-                         <div id="messages"></div>
-                         <div class="waiting" data-hide="true"></div>
+
+        <!-- 侧边栏菜单 (默认隐藏，在移动设备上通过按钮显示) -->
+        <div id="sidebar" class="fixed inset-0 bg-black/50 z-40 transform translate-x-full transition-transform duration-300 md:translate-x-0 md:static md:bg-transparent md:z-0">
+            <div class="bg-white dark:bg-dark-gray/30 h-full w-64 shadow-xl overflow-y-auto md:w-48">
+                <div class="p-4 border-b border-light-gray dark:border-dark-gray/50">
+                    <h2 class="font-bold text-lg text-dark dark:text-light">聊天历史</h2>
+                </div>
+                <div class="p-4">
+                    <button class="w-full py-2 px-4 rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary/80 hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors flex items-center justify-center">
+                        <i class="fa fa-plus mr-2"></i> 新建聊天
+                    </button>
+                </div>
+                <div class="p-2">
+                    <!-- 这里可以添加聊天历史列表 -->
+                    <div class="py-2 px-3 rounded-lg hover:bg-light-gray/50 dark:hover:bg-dark-gray/50 cursor-pointer text-sm text-dark dark:text-light">
+                        新的对话
+                    </div>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-light-gray dark:border-dark-gray/50">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-dark-gray dark:text-gray-400">v0.1.0</span>
+                        <button class="p-2 rounded-full hover:bg-light-gray/50 dark:hover:bg-dark-gray/50 transition-colors">
+                            <i class="fa fa-cog text-dark dark:text-light"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="input-box layout">
-            <div class="input-padding">
-                <form id="input-area" autocomplete="off">
-                    <input type="text" id="user-input" placeholder="给“NoobGPT”发送消息" maxlength="200">
-                    <button id="send-button">发送</button>
-                </form>
-                <footer>
-                    <span>Powered by 神奇Jabil试炼场</a></span>
-                    <i class="hr"></i>
-                    <span>
-                        @Julian</a>
-                    </span>
-                    <i class="hr"></i>
-                    <span>
-                        <a href="https://github.com/PrinSuparat/noobgpt" target="_blank">GitHub</a>
-                    </span>
-                </footer>
+        <div class="flex-1 flex">
+            <!-- 主聊天区域 -->
+            <div class="flex-1 flex flex-col">
+                <div class="chat-container flex-1 flex flex-col">
+                    <div id="chat-window" class="flex-1 flex flex-col">
+                        <div class="messages-box flex-1 flex flex-col">
+                            <div class="messages-list flex-1 overflow-y-auto p-4">
+                                <div id="messages" class="space-y-4">
+                                    <!-- 欢迎消息 -->
+                                    <div class="flex items-start space-x-3 mb-4">
+                                        <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                                            <i class="fa fa-robot text-primary"></i>
+                                        </div>
+                                        <div class="chat-bubble-left max-w-[85%]">
+                                            <p>你好！我是 NoobGPT，一个专为初学者设计的AI助手。有什么我可以帮助你的吗？</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="waiting hidden" id="typing-indicator">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                                            <i class="fa fa-robot text-primary"></i>
+                                        </div>
+                                        <div class="chat-bubble-left max-w-[85%]">
+                                            <div class="typing-indicator">
+                                                <span class="typing-dot"></span>
+                                                <span class="typing-dot" style="animation-delay: 0.2s;"></span>
+                                                <span class="typing-dot" style="animation-delay: 0.4s;"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-box border-t border-light-gray dark:border-dark-gray/50 bg-white dark:bg-dark-gray/30 p-4">
+                    <div class="input-padding max-w-3xl mx-auto">
+                        <form id="input-area" autocomplete="off" class="flex space-x-2">
+                            <input type="text" id="user-input" placeholder="给NoobGPT发送消息..." maxlength="200" 
+                                class="flex-1 px-4 py-3 rounded-lg border border-light-gray dark:border-dark-gray/50 bg-light dark:bg-dark-gray/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary dark:text-light">
+                            <button id="send-button" type="submit" 
+                                class="bg-primary hover:bg-primary/90 text-white px-4 py-3 rounded-lg transition-colors flex items-center justify-center">
+                                <i class="fa fa-paper-plane"></i>
+                            </button>
+                        </form>
+                        <footer class="mt-4 text-center text-xs text-dark-gray dark:text-gray-400">
+                            <span>Powered by 神奇Jabil试炼场</span>
+                            <span class="mx-2">|</span>
+                            <span>
+                                @Julian
+                            </span>
+                            <span class="mx-2">|</span>
+                            <span>
+                                <a href="https://github.com/PrinSuparat/noobgpt" target="_blank" class="hover:underline">GitHub</a>
+                            </span>
+                        </footer>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="noob.js"></script>
+    <script>
+        // 深色模式切换
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        
+        // 检查本地存储的主题偏好
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            htmlElement.classList.add('dark');
+        } else {
+            htmlElement.classList.remove('dark');
+        }
+        
+        // 切换主题
+        themeToggle.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            localStorage.theme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
+        });
+        
+        // 移动设备菜单切换
+        const menuButton = document.getElementById('menu-button');
+        const sidebar = document.getElementById('sidebar');
+        
+        menuButton.addEventListener('click', () => {
+            sidebar.classList.toggle('translate-x-full');
+        });
+        
+        // 点击侧边栏外部关闭菜单
+        sidebar.addEventListener('click', (e) => {
+            if (e.target === sidebar) {
+                sidebar.classList.add('translate-x-full');
+            }
+        });
+        
+        // 页面加载完成后自动聚焦到输入框
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('user-input').focus();
+        });
+    </script>
 </body>
 </html>
